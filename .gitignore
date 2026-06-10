@@ -1,3 +1,13 @@
 node_modules/
 dist/
 .DS_Store
+.next/
+coverage/
+*.tsbuildinfo
+.env
+.env.local
+data/*.xlsx
+data/.app-secret-key
+data/.storage.lock
+data/backups/
+data/transactions/

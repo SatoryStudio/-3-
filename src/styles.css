@@ -37,10 +37,11 @@ button {
 
 .app-shell {
   display: grid;
-  grid-template-columns: 300px minmax(0, 1fr);
-  gap: 36px;
+  grid-template-columns: 280px minmax(0, 1fr);
+  gap: 28px;
   min-height: 100vh;
   padding: 18px;
+  overflow-x: hidden;
 }
 
 .sidebar,
@@ -122,7 +123,9 @@ button {
 
 .workspace {
   min-width: 0;
+  max-width: 100%;
   padding: 10px 0 40px;
+  overflow: hidden;
 }
 
 .page-header {
@@ -168,6 +171,7 @@ p {
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
 .button {
@@ -179,6 +183,9 @@ p {
   padding: 0 18px;
   border-radius: 999px;
   font-weight: 900;
+  line-height: 1.1;
+  text-align: center;
+  white-space: nowrap;
 }
 
 .button.primary {
@@ -612,8 +619,10 @@ p {
 
 .filters {
   display: grid;
-  grid-template-columns: minmax(210px, 1fr) minmax(150px, 0.65fr) minmax(390px, 1.35fr) minmax(150px, 0.65fr) 180px;
+  grid-template-columns: minmax(230px, 1fr) minmax(160px, 0.62fr) minmax(300px, 1fr) minmax(160px, 0.62fr);
   gap: 12px;
+  align-items: stretch;
+  min-width: 0;
 }
 
 .search-field,
@@ -632,8 +641,9 @@ p {
 
 .date-filter {
   display: grid;
-  grid-template-columns: minmax(92px, 0.65fr) minmax(132px, 1fr) minmax(132px, 1fr);
+  grid-template-columns: minmax(96px, 0.75fr) minmax(112px, 1fr) minmax(112px, 1fr);
   gap: 8px;
+  min-width: 0;
 }
 
 .date-filter select,
@@ -647,9 +657,18 @@ p {
 }
 
 .search-field input {
+  min-width: 0;
   width: 100%;
   border: 0;
   outline: 0;
+}
+
+.filters .button {
+  grid-column: 3 / 5;
+  justify-self: end;
+  width: auto;
+  min-width: 230px;
+  padding: 0 12px;
 }
 
 .orders-page,
@@ -1169,9 +1188,10 @@ p {
 
 .integration-card {
   display: grid;
-  grid-template-columns: 28px minmax(260px, 1fr) auto;
-  gap: 14px;
+  grid-template-columns: 32px minmax(0, 1fr) 136px;
+  gap: 14px 16px;
   align-items: center;
+  padding: 16px 18px;
 }
 
 .integration-card.connected {
@@ -1179,9 +1199,31 @@ p {
   background: #f2fbf4;
 }
 
+.integration-card > svg {
+  color: var(--red-dark);
+}
+
+.integration-card > div {
+  min-width: 0;
+}
+
+.integration-card > div strong {
+  display: block;
+  font-size: 16px;
+  line-height: 1.15;
+}
+
+.integration-card > div span {
+  max-width: 760px;
+  margin-top: 4px;
+  line-height: 1.25;
+}
+
 .integration-card .button {
   margin-left: 0;
-  min-width: 140px;
+  width: 100%;
+  min-width: 0;
+  padding: 0 14px;
 }
 
 .marketplace-settings {
@@ -1263,6 +1305,12 @@ p {
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.integration-actions .button {
+  width: auto;
+  min-width: 150px;
 }
 
 .format-hint {
@@ -1291,6 +1339,69 @@ p {
   background: #fff;
   color: var(--red-dark);
   font-weight: 900;
+}
+
+.token-help {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(240px, 0.42fr);
+  gap: 12px 18px;
+  align-items: start;
+  padding: 14px;
+  border: 1px solid #cfe8d5;
+  border-radius: 10px;
+  background: #f7fcf8;
+}
+
+.token-help > div:first-child,
+.token-help ol {
+  min-width: 0;
+}
+
+.token-help strong {
+  display: block;
+  color: var(--ink);
+  font-size: 16px;
+  line-height: 1.2;
+}
+
+.token-help p {
+  margin: 4px 0 0;
+  color: var(--muted);
+  line-height: 1.25;
+}
+
+.token-help ol {
+  grid-column: 1;
+  margin: 0;
+  padding-left: 20px;
+  color: var(--ink);
+  font-weight: 800;
+}
+
+.token-help li + li {
+  margin-top: 6px;
+}
+
+.token-links {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  display: grid;
+  gap: 8px;
+}
+
+.token-links a {
+  display: inline-flex;
+  min-height: 38px;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 0 12px;
+  border: 1px solid var(--red);
+  border-radius: 999px;
+  color: var(--red-dark);
+  background: #fff;
+  font-weight: 900;
+  text-decoration: none;
 }
 
 .printer-status {
@@ -1517,8 +1628,32 @@ p {
 
   .printer-material,
   .usage-summary,
-  .printer-form-grid {
+  .printer-form-grid,
+  .token-help {
     grid-template-columns: 1fr;
+  }
+
+  .token-help ol,
+  .token-links {
+    grid-column: 1;
+    grid-row: auto;
+  }
+
+  .integration-card {
+    grid-template-columns: 28px minmax(0, 1fr);
+  }
+
+  .integration-card > .button {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+
+  .integration-actions {
+    justify-content: stretch;
+  }
+
+  .integration-actions .button {
+    flex: 1 1 180px;
   }
 }
 
@@ -1609,4 +1744,26 @@ p {
   .product-link {
     width: 100%;
   }
+}
+
+.payout-table {
+  min-width: 980px;
+}
+
+.payout-row {
+  display: grid;
+  grid-template-columns: 1.15fr 1fr 0.8fr 1fr 0.8fr 0.8fr;
+  gap: 16px;
+  align-items: center;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.payout-row > span:first-child {
+  display: grid;
+  gap: 4px;
+}
+
+.payout-row small {
+  color: var(--muted);
 }
