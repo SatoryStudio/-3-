@@ -13,6 +13,7 @@ import {
   normalizeFilamentColor,
   normalizeFilamentMaterial,
 } from "@/lib/services/filament-normalization";
+import { normalizeMarketplaceSku } from "@/lib/services/sku-normalization";
 import { inventoryService } from "@/lib/services/inventory-service";
 import {
   marketplaceLifecycleStatus,
@@ -243,10 +244,11 @@ export class OrderIngestionService {
     now: string,
   ): PreparedItem {
     const sku = String(source.marketplace_sku).trim();
+    const normalizedSku = normalizeMarketplaceSku(sku);
     const product = unit.data.products.find(
       (candidate) => candidate.is_active
         && candidate.marketplace === order.marketplace
-        && candidate.marketplace_sku === sku,
+        && normalizeMarketplaceSku(candidate.marketplace_sku) === normalizedSku,
     );
     const quantity = Math.round(source.quantity);
     return {
@@ -391,10 +393,10 @@ export class OrderIngestionService {
   private itemsChanged(unit: UnitOfWork, orderId: string, incoming: IncomingOrder) {
     const stored = unit.data.order_items
       .filter((item) => item.order_id === orderId)
-      .map((item) => `${item.marketplace_sku}:${item.quantity}:${item.unit_price}`)
+      .map((item) => `${normalizeMarketplaceSku(String(item.marketplace_sku))}:${Math.round(item.quantity)}:${Math.round(item.unit_price)}`)
       .sort();
     const received = incoming.items
-      .map((item) => `${String(item.marketplace_sku).trim()}:${Math.round(item.quantity)}:${Math.round(item.unit_price)}`)
+      .map((item) => `${normalizeMarketplaceSku(String(item.marketplace_sku).trim())}:${Math.round(item.quantity)}:${Math.round(item.unit_price)}`)
       .sort();
     return JSON.stringify(stored) !== JSON.stringify(received);
   }

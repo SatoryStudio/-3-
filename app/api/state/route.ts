@@ -8,6 +8,7 @@ import {
   buildFinanceSummary,
   buildOrderProfitBreakdown,
 } from "@/lib/services/profit-breakdown-service";
+import { normalizeMarketplaceSku } from "@/lib/services/sku-normalization";
 
 export async function GET() {
   try {
@@ -64,7 +65,7 @@ export async function GET() {
     for (const item of unmatchedItems) {
       const order = database.orders.find((candidate) => candidate.id === item.order_id);
       if (!order) continue;
-      const key = `${order.marketplace}:${item.marketplace_sku}`;
+      const key = `${order.marketplace}:${normalizeMarketplaceSku(item.marketplace_sku)}`;
       const row = unmatchedByKey.get(key) || {
         marketplace: order.marketplace,
         sku: item.marketplace_sku,

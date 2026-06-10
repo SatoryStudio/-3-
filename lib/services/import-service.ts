@@ -2,6 +2,7 @@ import { parse } from "csv-parse/sync";
 import readXlsxFile from "read-excel-file/node";
 import type { FilamentSpool, MarketplaceCode, Product } from "@/lib/domain/types";
 import type { StorageAdapter } from "@/lib/storage/storage-adapter";
+import { normalizeMarketplaceSku } from "@/lib/services/sku-normalization";
 
 function text(value: unknown) { return String(value ?? "").trim(); }
 function number(value: unknown, field: string, row: number) {
@@ -61,7 +62,8 @@ export class ImportService {
         const marketplace = text(row.marketplace).toLowerCase() as MarketplaceCode;
         if (!["manual", "yandex", "ozon"].includes(marketplace)) throw new Error(`Строка ${index + 2}: неизвестный marketplace`);
         const sku = text(row.marketplace_sku);
-        const existing = unit.data.products.find((product) => product.marketplace === marketplace && product.marketplace_sku.toLowerCase() === sku.toLowerCase());
+        const normalizedSku = normalizeMarketplaceSku(sku);
+        const existing = unit.data.products.find((product) => product.marketplace === marketplace && normalizeMarketplaceSku(product.marketplace_sku) === normalizedSku);
         const values = {
           marketplace, marketplace_sku: sku, name: text(row.name), filament_material: text(row.filament_material),
           filament_color: text(row.filament_color), weight_grams: Math.round(number(row.weight_grams, "weight_grams", index + 2)),
