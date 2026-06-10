@@ -4,6 +4,7 @@ import {
   normalizeFilamentColor,
   normalizeFilamentMaterial,
 } from "@/lib/services/filament-normalization";
+import { normalizeMarketplaceSku } from "@/lib/services/sku-normalization";
 
 export function orderProblemDetails(database: Database, order: Order) {
   const activeSpools = database.filament_spools.filter((spool) => spool.status === "active");
@@ -14,7 +15,7 @@ export function orderProblemDetails(database: Database, order: Order) {
     const product = database.products.find((candidate) =>
       candidate.is_active
       && candidate.marketplace === order.marketplace
-      && candidate.marketplace_sku === item.marketplace_sku);
+      && normalizeMarketplaceSku(candidate.marketplace_sku) === normalizeMarketplaceSku(item.marketplace_sku));
     const compatible = product
       ? activeSpools.filter((spool) => filamentMatches(
           product.filament_material,

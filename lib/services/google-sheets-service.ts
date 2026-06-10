@@ -2,6 +2,7 @@ import type { MarketplaceCode, Product } from "@/lib/domain/types";
 import { createHash } from "node:crypto";
 import { parse } from "csv-parse/sync";
 import type { IntegrationSettingsService } from "@/lib/services/integration-settings-service";
+import { normalizeMarketplaceSku } from "@/lib/services/sku-normalization";
 import { inventoryService } from "@/lib/services/inventory-service";
 import { ProblemOrderService } from "@/lib/services/problem-order-service";
 import { SyncLogService } from "@/lib/services/sync-log-service";
@@ -288,15 +289,16 @@ export class GoogleSheetsService {
           const valuesRow = this.productRow(row.values);
           const marketplace = String(valuesRow.marketplace || "yandex").trim().toLowerCase() as MarketplaceCode;
           const sku = String(valuesRow.marketplace_sku || "").trim();
+          const normalizedSku = normalizeMarketplaceSku(sku);
           if (!["manual", "yandex", "ozon"].includes(marketplace)) {
             throw new RowValidationError("marketplace", marketplace, "Неизвестный marketplace");
           }
           if (!sku) throw new RowValidationError("marketplace_sku", sku, "Артикул обязателен");
           if (!valuesRow.name) throw new RowValidationError("name", "", "Название обязательно");
-          const key = `${marketplace}:${sku}`;
+          const key = `${marketplace}:${normalizedSku}`;
           seen.add(key);
           const now = new Date().toISOString();
-          const existing = unit.data.products.find((item) => item.marketplace === marketplace && item.marketplace_sku === sku);
+          const existing = unit.data.products.find((item) => item.marketplace === marketplace && normalizeMarketplaceSku(item.marketplace_sku) === normalizedSku);
           const values: Omit<Product, "id" | "created_at"> = {
             marketplace, marketplace_sku: sku, name: valuesRow.name.trim(),
             filament_material: String(valuesRow.filament_material || "").trim(),
@@ -315,7 +317,8 @@ export class GoogleSheetsService {
       });
       if (source === "google_api") {
         unit.data.products.forEach((product) => {
-          if (!seen.has(`${product.marketplace}:${product.marketplace_sku}`) && product.is_active) {
+          const normalizedKey = `${product.marketplace}:${normalizeMarketplaceSku(product.marketplace_sku)}`;
+          if (!seen.has(normalizedKey) && product.is_active) {
             product.is_active = false;
             product.updated_at = new Date().toISOString();
             updated++;
